@@ -23,7 +23,7 @@ const VALID_MODELS_ANTHROPIC: &[&str] = &[
 #[derive(Serialize)]
 struct AnthropicRequest {
     model: String,
-    messages: Vec<Message>,
+    messages: Vec<ProviderMessage>,
     max_tokens: u32,
     #[serde(skip_serializing_if = "Option::is_none")]
     temperature: Option<f32>,
