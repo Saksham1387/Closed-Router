@@ -29,7 +29,8 @@ pub struct ChatResponse {
     pub id: String,
     pub model: String,
     pub content: String,
-    // pub usage: Usage,
+    pub stop_reason:String,
+    pub usage: Usage,
 }
 
 #[async_trait]

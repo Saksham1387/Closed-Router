@@ -39,12 +39,19 @@ struct ContentBlock {
 
 #[derive(Deserialize)]
 #[derive(Debug)]
+struct AnthropicUsage {
+    input_tokens: u32,
+    output_tokens: u32
+}
+
+#[derive(Deserialize)]
+#[derive(Debug)]
 struct AnthropicResponse {
     id: String,
     model: String,
     content: Vec<ContentBlock>,
     stop_reason: String,
-    // usage: AnthropicUsage,
+    usage: AnthropicUsage,
 }
 
 impl AnthropicProvider {
@@ -107,12 +114,13 @@ impl LLMProvider for AnthropicProvider {
             id: anthropic_response.id,
             model: anthropic_response.model,
             content,
-            // usage: Usage {
-            //     prompt_tokens: anthropic_response.usage.input_tokens,
-            //     completion_tokens: anthropic_response.usage.output_tokens,
-            //     total_tokens: anthropic_response.usage.input_tokens 
-            //         + anthropic_response.usage.output_tokens,
-            // },
+            stop_reason:anthropic_response.stop_reason,
+            usage: Usage {
+                prompt_tokens: anthropic_response.usage.input_tokens,
+                completion_tokens: anthropic_response.usage.output_tokens,
+                total_tokens: anthropic_response.usage.input_tokens 
+                    + anthropic_response.usage.output_tokens,
+            },
         })
     }
 

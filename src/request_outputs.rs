@@ -18,13 +18,20 @@ pub struct Message {
     pub content: String
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UsageResponse {
+    pub prompt_tokens: u32,
+    pub completion_tokens: u32,
+    pub total_tokens: u32,
+}
 
 #[derive(Serialize, Deserialize)]
 pub struct ChatOutput {
     pub created: i64,
     pub model: String,
+    pub stop_reason:String,
     pub choices: Vec<Choice>,
-
+    pub usage: UsageResponse
 }
 
 

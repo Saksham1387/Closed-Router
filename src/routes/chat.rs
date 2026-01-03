@@ -1,5 +1,5 @@
 use poem::{handler, web::{Data, Json}};
-use crate::{request_inputs::ChatInput, request_outputs::{Choice, Message}, services::{anthropic::AnthropicProvider, provider_trait::ProviderMessage}};
+use crate::{request_inputs::ChatInput, request_outputs::{Choice, Message, UsageResponse}, services::{anthropic::AnthropicProvider, provider_trait::ProviderMessage}};
 use crate::request_outputs::{ChatOutput};
 use std::{sync::{Arc, Mutex}};
 use crate::db::Store;
@@ -9,7 +9,6 @@ use poem::{
     Error,
     http::StatusCode,
 };
-
 
 #[handler]
 pub async fn chat(Json(data):Json<ChatInput>,Data(s):Data<&Arc<Mutex<Store>>>) -> Result<Json<ChatOutput>, Error>  {
@@ -43,8 +42,14 @@ pub async fn chat(Json(data):Json<ChatInput>,Data(s):Data<&Arc<Mutex<Store>>>) -
 
             let response = ChatOutput {
                 model:result.model,
+                stop_reason:result.stop_reason,
                 choices:vec![choice],
-                created
+                created,
+                usage: UsageResponse {
+                    prompt_tokens: result.usage.prompt_tokens,
+                    completion_tokens: result.usage.completion_tokens,
+                    total_tokens: result.usage.total_tokens
+                }
             };
             Ok(Json(response))
        } 
