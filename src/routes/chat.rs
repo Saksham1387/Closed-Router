@@ -1,5 +1,5 @@
 use poem::{handler, web::{Data, Json}};
-use crate::{request_inputs::ChatInput, request_outputs::{Choice, Message, UsageResponse}, services::{anthropic::AnthropicProvider, provider_trait::ProviderMessage}};
+use crate::{request_inputs::ChatInput, request_outputs::{Choice, Message, UsageResponse}, services::{anthropic::AnthropicProvider, openai::OpenaiProvider, provider_trait::ProviderMessage}};
 use crate::request_outputs::{ChatOutput};
 use std::{sync::{Arc, Mutex}};
 use crate::db::Store;
@@ -13,7 +13,7 @@ use poem::{
 #[handler]
 pub async fn chat(Json(data):Json<ChatInput>,Data(s):Data<&Arc<Mutex<Store>>>) -> Result<Json<ChatOutput>, Error>  {
     let provider = data.provder;
-    let provider_api_key = data.provder_api_key;
+    let provider_api_key = data.provider_api_key;
     let prompt = data.message;
 
    match provider.as_str() {
@@ -53,6 +53,50 @@ pub async fn chat(Json(data):Json<ChatInput>,Data(s):Data<&Arc<Mutex<Store>>>) -
             };
             Ok(Json(response))
        } 
+
+       "openai" => {
+            print!("fjsiodjfisd");
+            let message = ProviderMessage {
+                content: prompt,
+                role:"user".to_string()
+            };
+
+            let request = ChatRequest { 
+                model: data.model.to_string(), 
+                messages:vec![message],
+                temperature:Some(0.0),
+                max_tokens:Some(100)
+            };
+
+            let created: i64 = SystemTime::now().duration_since(UNIX_EPOCH).expect("Time went backwards").as_secs() as i64;
+
+            let provider = OpenaiProvider::new();
+            let result = provider.chat_completion(&provider_api_key, request).await.map_err(|_| Error::from_status(StatusCode::BAD_GATEWAY))?;
+
+            print!("{:?}",result);
+
+            let choice = Choice {
+                message:Message {
+                    role:"assistant".to_string(),
+                    content:result.content
+                }
+            };
+
+            let response = ChatOutput {
+                model:result.model,
+                stop_reason:result.stop_reason,
+                choices:vec![choice],
+                created,
+                usage: UsageResponse {
+                    prompt_tokens: result.usage.prompt_tokens,
+                    completion_tokens: result.usage.completion_tokens,
+                    total_tokens: result.usage.total_tokens
+                }
+            };
+            Ok(Json(response))
+
+
+       }
        _=> Err(Error::from_status(StatusCode::UNAUTHORIZED)),
    }
 }

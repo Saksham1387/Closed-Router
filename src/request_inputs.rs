@@ -9,7 +9,7 @@ pub struct CreateUser {
 #[derive(Serialize, Deserialize)]
 pub struct ChatInput {
     pub api_key:String,
-    pub provder_api_key:String,
+    pub provider_api_key:String,
     pub provder:String,
     pub message:String,
     pub model:String

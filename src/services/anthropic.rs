@@ -100,9 +100,6 @@ impl LLMProvider for AnthropicProvider {
         let anthropic_response: AnthropicResponse = response.json().await
             .map_err(|e| format!("Failed to parse response: {}", e))?;
 
-
-        println!("{:?}",anthropic_response);
-
         let content = anthropic_response.content
             .iter()
             .find(|c| c.content_type == "text")
