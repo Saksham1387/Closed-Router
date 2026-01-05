@@ -36,7 +36,6 @@ diesel::table! {
 
 diesel::table! {
     request_logs (id) {
-        id -> Int4,
         #[max_length = 255]
         user_id -> Varchar,
         provider_id -> Int4,
@@ -48,6 +47,8 @@ diesel::table! {
         status_code -> Int4,
         error_message -> Nullable<Text>,
         created_at -> Timestamp,
+        #[max_length = 36]
+        id -> Varchar,
     }
 }
 

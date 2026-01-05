@@ -56,6 +56,18 @@ impl Store {
         }
         Ok(user_result.id)
     }
+
+    pub fn verify_api_key(&mut self,input_api_key:String) -> (Option<String>, bool) {
+        use crate::schema::users::dsl::*;
+
+        let user_result = users
+            .filter(api_key.eq(input_api_key))
+            .select(id)
+            .first(&mut self.conn).optional().unwrap();
+
+        let is_valid = user_result.is_some();
+        (user_result, is_valid)
+    }   
 }
 
 
